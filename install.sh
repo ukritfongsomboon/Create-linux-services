@@ -11,13 +11,13 @@ echo "                               ";
 # Config Bash Script App As Linux Service
 #-------------------------------------------------------------------
 APP_NAME='tapp'
-APP_DESCRIPTION="Test Run Service !!"
+APP_DESCRIPTION='Test Run Service !!'
 APP_FILE='app.py'
-APP_DIR='$PWD'
+APP_DIR=$PWD
 APP_RUNNER='/usr/bin/python3'
 
-#SERVICE_DIR='/etc/systemd/system/'
-SERVICE_DIR=$PWD
+SERVICE_DIR='/etc/systemd/system/'
+#SERVICE_DIR=$PWD
 #-------------------------------------------------------------------
 # Check privilage to root
 #-------------------------------------------------------------------
@@ -77,12 +77,23 @@ if [ -f "$FULL_FILE" ]; then
 fi
 
 echo -ne "[Unit]\nDescription=$APP_DESCRIPTION\nAfter=multi-user.target\n\n">> $FULL_FILE
-echo -ne "[Service]\nType=simple\nRestart=always\nExecStart=$APP_RUNNER $FULL_NAME\n\n">> $FULL_FILE
+echo -ne "[Service]\nType=simple\nRestart=always\nExecStart=$APP_RUNNER $APP_DIR/$APP_FILE\n\n">> $FULL_FILE
 echo -ne "[Install]\nWantedBy=multi-user.target">> $FULL_FILE
 
+#------------------------------------------------------------------
+# Show Output File
+#------------------------------------------------------------------
+echo -ne "\n\n#########################################################\n"
+echo -ne "###                     service file                  ###\n"
+echo -ne "#########################################################\n\n"
 cat $FULL_FILE
+echo -ne "\n\n#########################################################\n\n"
+
 #-------------------------------------------------------------------
+# Reload Services
 #-------------------------------------------------------------------
+systemctl daemon-reload
+systemctl start $APP_NAME
 #-------------------------------------------------------------------
 
 echo -ne '\n'
