@@ -16,7 +16,6 @@ APP_FILE='app.py'
 APP_DIR='$PWD'
 APP_RUNNER='/usr/bin/python3'
 
-
 SERVICE_DIR='/etc/systemd/system/'
 
 #-------------------------------------------------------------------
@@ -29,9 +28,24 @@ fi
 
 
 #-------------------------------------------------------------------
+# Check File Main app.py
 #-------------------------------------------------------------------
+if [ -f "$APP_FILE" ]; then
+  echo -ne "[Pass]\t$APP_FILE file exists\n"
+else
+  echo -ne "[Error]\t$APP_FILE File does not exist\n"
+  exit
+fi
+
 #-------------------------------------------------------------------
+# Check Runner App
 #-------------------------------------------------------------------
+if [ "$($APP_RUNNER --version)" ]; then 
+  echo -ne '[Pass]\t'$($APP_RUNNER --version)
+else 
+  echo 'Fail'
+fi
 #-------------------------------------------------------------------
 #-------------------------------------------------------------------
 
+echo -ne '\n'
