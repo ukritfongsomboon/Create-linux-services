@@ -16,8 +16,8 @@ APP_FILE='app.py'
 APP_DIR='$PWD'
 APP_RUNNER='/usr/bin/python3'
 
-SERVICE_DIR='/etc/systemd/system/'
-
+#SERVICE_DIR='/etc/systemd/system/'
+SERVICE_DIR=$PWD
 #-------------------------------------------------------------------
 # Check privilage to root
 #-------------------------------------------------------------------
@@ -41,10 +41,47 @@ fi
 # Check Runner App
 #-------------------------------------------------------------------
 if [ "$($APP_RUNNER --version)" ]; then 
-  echo -ne '[Pass]\t'$($APP_RUNNER --version)
-else 
-  echo 'Fail'
+  echo -ne '[Pass]\t'$($APP_RUNNER --version)'\n'
+else
+  echo -ne '[Error] Runner is not exists\n'
+  exit
 fi
+
+#-------------------------------------------------------------------
+# Check Service dir is exists
+#-------------------------------------------------------------------
+if [[ -d "$SERVICE_DIR" ]]; then
+    echo -ne "[Pass]\t$SERVICE_DIR exists on your filesystem.\n"
+else
+    echo -ne "[Error]\t$SERVICE_DIR not exists on your filesystem.\n"
+    exit
+fi
+
+#-------------------------------------------------------------------
+# Create File Service.service
+#-------------------------------------------------------------------
+FULL_FILE=$SERVICE_DIR/$APP_NAME.service
+echo -ne "\n[Path]\t$FULL_FILE\n\n"
+
+if [ -f "$FULL_FILE" ]; then
+  echo -ne "[Wait]\tService File is exists\n"
+
+  systemctl stop $APP_NAME.service
+  echo -ne "\t-->[Stop]\tStop old $FULL_FILE\n"
+
+  systemctl daemon-reload
+  echo -ne "\t-->[Reload]\tReload All Service\n"
+
+  rm -rf $FULL_FILE
+  echo -ne "\t-->[Remove]\tRemove old $FULL_FILE\n"
+fi
+
+echo -ne "[Unit]\nDescription=$APP_DESCRIPTION\nAfter=multi-user.target\n\n">> $FULL_FILE
+echo -ne "[Service]\nType=simple\nRestart=always\nExecStart=$APP_RUNNER $FULL_NAME\n\n">> $FULL_FILE
+echo -ne "[Install]\nWantedBy=multi-user.target">> $FULL_FILE
+
+cat $FULL_FILE
+#-------------------------------------------------------------------
 #-------------------------------------------------------------------
 #-------------------------------------------------------------------
 
